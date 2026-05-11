@@ -1,4 +1,4 @@
-#include "../lib/codexion.h"
+#include "include/codexion.h"
 #define BASE_DEC 10
 
 static t_error_code	parse_long(const char *s, long *out)
@@ -76,7 +76,7 @@ int	parse_args(int ac, const char **av, t_sim *sim)
 		return (-1);
 	}
 	err = ERR_OK;
-	err |= parse_int(av[1], &sim->coders);
+	err |= parse_int(av[1], &sim->n_coders);
 	err |= parse_long(av[2], &sim->time_to_burnout);
 	err |= parse_long(av[3], &sim->time_to_compile);
 	err |= parse_long(av[4], &sim->time_to_debug);
