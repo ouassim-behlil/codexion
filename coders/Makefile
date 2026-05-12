@@ -2,7 +2,10 @@ NAME = codexion
 
 SRC = main.c \
 	  error.c \
-	  parser.c 
+	  parser.c \
+	  coder.c \
+	  dongle.c \
+	  time.c
 
 INCLUDE = include
 HEADER = $(INCLUDE)/codexion.h

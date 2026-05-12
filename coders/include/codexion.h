@@ -29,28 +29,21 @@ typedef enum e_policy
 typedef struct s_sim	t_sim;
 typedef struct s_coder	t_coder;
 typedef struct s_dongle	t_dongle;
+typedef struct timeval	t_time_val;
 
 typedef struct s_request
 {
 	int			coder_id;
-	int			seq;
-	long		key;
+	long		arrival_ms;
+	long		deadline_ms;
 }	t_request;
-
-typedef struct s_heap
-{
-	t_request		*items;
-	int				size;
-	int				capacity;
-	t_policy		policy;
-}	t_heap;
 
 struct s_dongle
 {
 	int					id;
 	int					held;
 	long				not_available_until_ms;
-	t_heap				queue;
+	t_request			*waiters[2];
 	pthread_mutex_t		lock;
 	pthread_cond_t		cv;
 };
@@ -80,8 +73,8 @@ struct s_sim
 	long				start_ms;
 	int					stop;
 	int					n_dongles;
-	t_coder				*coders;
-	t_dongle			*dongles;
+	t_coder				**coders;
+	t_dongle			**dongles;
 	pthread_mutex_t		log_lock;
 	pthread_t			monitor;
 };
@@ -91,5 +84,16 @@ int		parse_args(int ac, const char **av, t_sim *sim);
 
 // error.c
 void	print_error(t_error_code err);
+
+// time.c
+long	get_time_ms(void);
+
+// coder.c
+int		init_coders(t_sim *sim);
+void	destroy_coders(t_sim *sim);
+
+// dongle.c
+int		init_dongles(t_sim *sim);
+void	destroy_dongles(t_sim *sim);
 
 #endif
