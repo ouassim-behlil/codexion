@@ -96,4 +96,8 @@ void	destroy_coders(t_sim *sim);
 int		init_dongles(t_sim *sim);
 void	destroy_dongles(t_sim *sim);
 
+// simulation.c
+int		init_simulation(t_sim *sim, int ac, const char **av);
+void	destroy_simulation(t_sim *sim);
+
 #endif

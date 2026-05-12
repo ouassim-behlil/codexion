@@ -28,6 +28,7 @@ int	init_dongles(t_sim *sim)
 	sim->dongles = malloc(sim->n_dongles * sizeof(t_dongle *));
 	if (!sim->dongles)
 		return (-1);
+	i = 0;
 	while (i < sim->n_dongles)
 	{
 		dongle = malloc(sizeof(t_dongle));
@@ -35,9 +36,12 @@ int	init_dongles(t_sim *sim)
 		{
 			while (i--)
 				destroy_dongle(sim->dongles[i]);
+			free(sim->dongles);
+			return (-1);
 		}
 		fill_dongle(dongle, i + 1);
 		sim->dongles[i] = dongle;
+		i++;
 	}
 	return (0);
 }

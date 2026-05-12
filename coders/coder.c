@@ -42,6 +42,7 @@ int	init_coders(t_sim *sim)
 		}
 		fill_coder(coder, i + 1, sim);
 		sim->coders[i] = coder;
+		i++;
 	}
 	return (0);
 }

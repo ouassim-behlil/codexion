@@ -5,7 +5,8 @@ SRC = main.c \
 	  parser.c \
 	  coder.c \
 	  dongle.c \
-	  time.c
+	  time.c \
+	  simulation.c
 
 INCLUDE = include
 HEADER = $(INCLUDE)/codexion.h

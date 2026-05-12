@@ -1,5 +1,7 @@
 #include "include/codexion.h"
 
+// we should modify start_ms at the start of simulation
+// sim->start_ms = get_time_ms();
 int	init_simulation(t_sim *sim, int ac, const char **av)
 {
 	if (!sim || !av)
@@ -10,15 +12,12 @@ int	init_simulation(t_sim *sim, int ac, const char **av)
 	sim->stop = 0;
 	if (init_coders(sim) != 0)
 		return (-1);
-	sim->dongles = init_dongles(sim);
-	if (!(sim->dongles))
+	if (init_dongles(sim) != 0)
 	{
-		destroy_coders(sim->coders);
+		destroy_coders(sim);
 		return (-1);
 	}
 	pthread_mutex_init(&sim->log_lock, NULL);
-	// we should modify start_ms at the start of simulation
-	// sim->start_ms = get_time_ms();
 	return (0);
 }
 
@@ -26,8 +25,7 @@ void	destroy_simulation(t_sim *sim)
 {
 	if (!sim)
 		return ;
-	destroy_coders(sim->coders);
-	destroy_dongles(sim->dongles);
+	destroy_coders(sim);
+	destroy_dongles(sim);
 	pthread_mutex_destroy(&sim->log_lock);
-	free(sim);
 }
