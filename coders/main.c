@@ -6,7 +6,7 @@ int	main(int argc, const char *argv[])
 
 	if (init_simulation(&sim, argc, argv))
 		return (-1);
-	printf("All works well!\n");
+	start_simulation(&sim);
 	destroy_simulation(&sim);
 	return (0);
 }

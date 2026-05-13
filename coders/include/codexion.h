@@ -8,6 +8,7 @@
 # include <sys/time.h>
 # include <unistd.h>
 # include <limits.h>
+# include <time.h>
 
 typedef enum 
 {
@@ -30,6 +31,7 @@ typedef struct s_sim	t_sim;
 typedef struct s_coder	t_coder;
 typedef struct s_dongle	t_dongle;
 typedef struct timeval	t_time_val;
+typedef struct timespec	t_timespec;
 
 typedef struct s_request
 {
@@ -43,7 +45,7 @@ struct s_dongle
 	int					id;
 	int					held;
 	long				not_available_until_ms;
-	t_request			*waiters[2];
+	t_request			*requests[2];
 	pthread_mutex_t		lock;
 	pthread_cond_t		cv;
 };
@@ -86,7 +88,10 @@ int		parse_args(int ac, const char **av, t_sim *sim);
 void	print_error(t_error_code err);
 
 // time.c
-long	get_time_ms(void);
+long		get_time_ms(void);
+void		sleep_until_ms(long until_ms, t_sim *sim);
+t_timespec	ms_to_timespec(long ms);
+long		elapsed_ms(long since_ms);
 
 // coder.c
 int		init_coders(t_sim *sim);
@@ -99,5 +104,22 @@ void	destroy_dongles(t_sim *sim);
 // simulation.c
 int		init_simulation(t_sim *sim, int ac, const char **av);
 void	destroy_simulation(t_sim *sim);
+void	start_simulation(t_sim *sim);
+
+// monitor.c
+int		is_stopped(t_sim *sim);
+void	*monitor_routine(void *arg);
+
+// request.c
+int		request_dongle(t_coder *coder, int dongle_id);
+
+// release.c
+void	release_dongles(t_coder *coder);
+
+// coder_routine.c
+void	*coder_routine(void *arg);
+
+// log.c
+void	log_msg(t_coder *coder, const char *msg);
 
 #endif

@@ -6,7 +6,12 @@ SRC = main.c \
 	  coder.c \
 	  dongle.c \
 	  time.c \
-	  simulation.c
+	  simulation.c \
+	  request.c \
+	  release.c \
+	  log.c \
+	  coder_routine.c \
+	  monitor.c
 
 INCLUDE = include
 HEADER = $(INCLUDE)/codexion.h

@@ -6,6 +6,10 @@ static void	destroy_dongle(t_dongle *dongle)
 		return ;
 	pthread_cond_destroy(&(dongle->cv));
 	pthread_mutex_destroy(&(dongle->lock));
+	if (dongle->requests[0])
+		free(dongle->requests[0]);
+	if (dongle->requests[1])
+		free(dongle->requests[1]);
 	free(dongle);
 }
 
@@ -13,11 +17,11 @@ static void	fill_dongle(t_dongle *dongle, int id)
 {
 	pthread_cond_init(&dongle->cv, NULL);
 	pthread_mutex_init(&dongle->lock, NULL);
-	dongle->held = -1;
+	dongle->held = 0;
 	dongle->id = id;
 	dongle->not_available_until_ms = 0;
-	dongle->waiters[0] = NULL;
-	dongle->waiters[1] = NULL;
+	dongle->requests[0] = NULL;
+	dongle->requests[1] = NULL;
 }
 
 int	init_dongles(t_sim *sim)

@@ -8,14 +8,14 @@ static void	destroy_coder(t_coder *coder)
 	free(coder);
 }
 
-// coder->last_compile_start_ms will be initiated when simulation starts
 static void	fill_coder(t_coder *coder, int id, t_sim *sim)
 {
 	coder->id = id;
 	coder->compiles_done = 0;
 	coder->left_dongle_id = id;
-	coder->right_dongle_id = (sim->n_dongles % id) + 1;
+	coder->right_dongle_id = (id % sim->n_dongles) + 1;
 	coder->sim = sim;
+	coder->last_compile_start_ms = -1;
 	pthread_mutex_init(&coder->lock, NULL);
 }
 
