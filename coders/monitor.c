@@ -33,7 +33,7 @@ void	*monitor_routine(void *arg)
 			if (coder->compiles_done < sim->compiles_required
 				&& elapsed_ms(coder->last_compile_start_ms) >= sim->time_to_burnout)
 			{
-				log_msg(coder, "Burnout");
+				log_msg(coder, "Burnout", 0);
 				pthread_mutex_unlock(&coder->lock);
 				pthread_mutex_lock(&sim->log_lock);
 				sim->stop = 1;

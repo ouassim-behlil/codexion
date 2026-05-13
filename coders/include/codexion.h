@@ -57,6 +57,7 @@ struct s_coder
 	int					right_dongle_id;
 	long				last_compile_start_ms;
 	int					compiles_done;
+	long                attempt_start_ms; 
 	pthread_mutex_t		lock;
 	pthread_t			thread;
 	t_sim				*sim;
@@ -120,6 +121,6 @@ void	release_dongles(t_coder *coder);
 void	*coder_routine(void *arg);
 
 // log.c
-void	log_msg(t_coder *coder, const char *msg);
+void	log_msg(t_coder *coder, const char *msg, int dongle_id);
 
 #endif

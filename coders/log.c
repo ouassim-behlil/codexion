@@ -1,6 +1,6 @@
 #include "include/codexion.h"
 
-void	log_msg(t_coder *coder, const char *msg)
+void	log_msg(t_coder *coder, const char *msg, int dongle_id)
 {
 	long	rel_time;
 
@@ -13,6 +13,9 @@ void	log_msg(t_coder *coder, const char *msg)
 		pthread_mutex_unlock(&coder->sim->log_lock);
 		return ;
 	}
-	fprintf(stdout, "%ld coder %d %s\n", rel_time, coder->id, msg);
+	if (strcmp(msg, "takes dongle") == 0)
+		fprintf(stdout, "%ld coder %d %s %d\n", rel_time, coder->id, msg, dongle_id);
+	else
+		fprintf(stdout, "%ld coder %d %s\n", rel_time, coder->id, msg);
 	pthread_mutex_unlock(&coder->sim->log_lock);
 }

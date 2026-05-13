@@ -16,6 +16,7 @@ static void	fill_coder(t_coder *coder, int id, t_sim *sim)
 	coder->right_dongle_id = (id % sim->n_dongles) + 1;
 	coder->sim = sim;
 	coder->last_compile_start_ms = -1;
+	coder->attempt_start_ms = 0;
 	pthread_mutex_init(&coder->lock, NULL);
 }
 

@@ -6,6 +6,7 @@ static int	compile(t_coder *coder)
 	int		second;
 	long	now;
 
+	coder->attempt_start_ms = get_time_ms();
 	first = coder->left_dongle_id;
 	second = coder->right_dongle_id;
 	if (coder->left_dongle_id > coder->right_dongle_id)
@@ -17,9 +18,9 @@ static int	compile(t_coder *coder)
 		return (-1);
 	if (request_dongle(coder, second) != 0)
 		return (-1);
-	log_msg(coder, "takes dongle");
-	log_msg(coder, "takes dongle");
-	log_msg(coder, "is compiling");
+	log_msg(coder, "takes dongle", first);
+	log_msg(coder, "takes dongle", second);
+	log_msg(coder, "is compiling", 0);
 	now = get_time_ms();
 	pthread_mutex_lock(&coder->lock);
 	coder->last_compile_start_ms = now;
@@ -31,13 +32,13 @@ static int	compile(t_coder *coder)
 
 static void	debug(t_coder *coder)
 {
-	log_msg(coder, "is debugging");
+	log_msg(coder, "is debugging", 0);
 	sleep_until_ms(get_time_ms() + coder->sim->time_to_debug, coder->sim);
 }
 
 static void	refactor(t_coder *coder)
 {
-	log_msg(coder, "is refactoring");
+	log_msg(coder, "is refactoring", 0);
 	sleep_until_ms(get_time_ms() + coder->sim->time_to_refactor, coder->sim);
 	pthread_mutex_lock(&coder->lock);
 	coder->compiles_done += 1;

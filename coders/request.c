@@ -32,7 +32,7 @@ static int	init_request(t_request **req, t_coder *coder)
 	if (!*req)
 		return (-1);
 	(*req)->coder_id = coder->id;
-	(*req)->arrival_ms = get_time_ms();
+	(*req)->arrival_ms = coder->attempt_start_ms;
 	(*req)->deadline_ms = coder->last_compile_start_ms + coder->sim->time_to_burnout;
 	return (0);
 }
