@@ -10,7 +10,7 @@ long	get_time_ms(void)
 
 void	sleep_until_ms(long until_ms, t_sim *sim)
 {
-	if (!sim || until_ms == 0)
+	if (!sim)
 		return ;
 	while (get_time_ms() < until_ms)
 	{

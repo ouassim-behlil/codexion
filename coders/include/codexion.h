@@ -49,6 +49,9 @@ struct s_dongle
 	pthread_mutex_t		lock;
 	pthread_cond_t		cv;
 };
+/* requests[2]: chain topology guarantees at most 2 contenders per dongle
+ * (the left-neighbor coder and the right-neighbor coder). Changing the
+ * topology (e.g. fully-connected) requires replacing this with a queue. */
 
 struct s_coder
 {
@@ -109,6 +112,7 @@ void	start_simulation(t_sim *sim);
 
 // monitor.c
 int		is_stopped(t_sim *sim);
+void	signal_stop(t_sim *sim);
 void	*monitor_routine(void *arg);
 
 // request.c

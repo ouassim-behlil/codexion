@@ -57,7 +57,10 @@ void	*coder_routine(void *arg)
 	while (done < coder->sim->compiles_required)
 	{
 		if (compile(coder) != 0)
+		{
+			signal_stop(coder->sim);
 			return (NULL);
+		}
 		debug(coder);
 		refactor(coder);
 		pthread_mutex_lock(&coder->lock);

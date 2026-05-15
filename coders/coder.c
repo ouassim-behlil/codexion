@@ -26,7 +26,10 @@ int	init_coders(t_sim *sim)
 	t_coder		*coder;
 
 	if (sim->n_coders < 1)
+	{
+		fprintf(stderr, "ERROR: Number of coders must be at least 1\n");
 		return (-1);
+	}
 	sim->coders = malloc(sim->n_coders * sizeof(t_coder *));
 	if (!(sim->coders))
 		return (-1);

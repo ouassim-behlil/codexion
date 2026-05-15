@@ -12,6 +12,23 @@ int	is_stopped(t_sim *sim)
 	return (0);
 }
 
+void	signal_stop(t_sim *sim)
+{
+	int		i;
+
+	pthread_mutex_lock(&sim->log_lock);
+	sim->stop = 1;
+	pthread_mutex_unlock(&sim->log_lock);
+	i = 0;
+	while (i < sim->n_dongles)
+	{
+		pthread_mutex_lock(&sim->dongles[i]->lock);
+		pthread_cond_broadcast(&sim->dongles[i]->cv);
+		pthread_mutex_unlock(&sim->dongles[i]->lock);
+		i++;
+	}
+}
+
 void	*monitor_routine(void *arg)
 {
 	int			i;
@@ -33,16 +50,11 @@ void	*monitor_routine(void *arg)
 			if (coder->compiles_done < sim->compiles_required
 				&& elapsed_ms(coder->last_compile_start_ms) >= sim->time_to_burnout)
 			{
-				log_msg(coder, "Burnout", 0);
 				pthread_mutex_unlock(&coder->lock);
-				pthread_mutex_lock(&sim->log_lock);
-				sim->stop = 1;
-				pthread_mutex_unlock(&sim->log_lock);
+				log_msg(coder, "Burnout", 0);
+				signal_stop(sim);
 				return (NULL);
 			}
-			else
-				pthread_mutex_unlock(&coder->lock);
-			pthread_mutex_lock(&coder->lock);
 			n += coder->compiles_done;
 			pthread_mutex_unlock(&coder->lock);
 			i++;
