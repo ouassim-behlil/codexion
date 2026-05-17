@@ -3,11 +3,11 @@
 int	is_stopped(t_sim *sim)
 {
 	pthread_mutex_lock(&sim->log_lock);
-		if (sim->stop == 1)
-		{
-			pthread_mutex_unlock(&sim->log_lock);
-			return (1);
-		}
+	if (sim->stop == 1)
+	{
+		pthread_mutex_unlock(&sim->log_lock);
+		return (1);
+	}
 	pthread_mutex_unlock(&sim->log_lock);
 	return (0);
 }
@@ -42,36 +42,46 @@ void	signal_stop(t_sim *sim)
 	}
 }
 
-void	*monitor_routine(void *arg)
+static int	check_coders(t_sim *sim, int *n)
 {
 	int			i;
-	int			n;
 	t_coder		*coder;
+
+	i = 0;
+	while (i < sim->n_coders)
+	{
+		coder = sim->coders[i];
+		if (check_burnout(coder) != 0)
+		{
+			log_msg(coder, "Burnout");
+			pthread_mutex_lock(&sim->log_lock);
+			sim->stop = 1;
+			pthread_mutex_unlock(&sim->log_lock);
+			signal_stop(sim);
+			return (-1);
+		}
+		pthread_mutex_lock(&coder->lock);
+		(*n) += coder->compiles_done;
+		pthread_mutex_unlock(&coder->lock);
+		i++;
+	}
+	return (0);
+}
+
+void	*monitor_routine(void *arg)
+{
 	t_sim		*sim;
+	int			n;
 
 	sim = (t_sim *)arg;
 	while (1)
 	{
 		if (is_stopped(sim) != 0)
 			return (NULL);
-		i = 0;
 		n = 0;
-		while (i < sim->n_coders)
+		if (check_coders(sim, &n) != 0)
 		{
-			coder = sim->coders[i];
-			if (check_burnout(coder) != 0)
-			{
-				log_msg(coder, "Burnout");
-				pthread_mutex_lock(&sim->log_lock);
-				sim->stop = 1;
-				pthread_mutex_unlock(&sim->log_lock);
-				signal_stop(sim);
-				return (NULL);
-			}
-			pthread_mutex_lock(&coder->lock);
-			n += coder->compiles_done;
-			pthread_mutex_unlock(&coder->lock);
-			i++;
+			return (NULL);
 		}
 		if (n >= sim->n_coders * sim->compiles_required)
 			return (NULL);

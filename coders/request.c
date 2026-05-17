@@ -1,6 +1,5 @@
 #include "include/codexion.h"
 
-
 static void	push_request(t_coder *coder, t_dongle *dongle)
 {
 	t_request		req;
@@ -36,9 +35,7 @@ static void	request_dongle(t_coder *c, t_dongle *d, t_sim *sim)
 			return ;
 		}
 		if (heap_peek(&d->heap) != c->id)
-		{
 			pthread_cond_wait(&d->cv, &d->lock);
-		}
 		else
 		{
 			timeout = ms_to_timespec(d->not_available_until_ms);

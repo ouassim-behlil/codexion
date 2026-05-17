@@ -30,21 +30,24 @@ void	destroy_simulation(t_sim *sim)
 
 void	start_simulation(t_sim *sim)
 {
-	int		i;
+	int			i;
+	t_coder		*coder;
 
 	sim->start_ms = get_time_ms();
 	i = 0;
 	while (i < sim->n_coders)
 	{
-		sim->coders[i]->last_compile_start_ms = sim->start_ms;
-		pthread_create(&sim->coders[i]->thread, NULL, coder_routine, sim->coders[i]);
-		i ++;	
+		coder = sim->coders[i];
+		coder->last_compile_start_ms = sim->start_ms;
+		pthread_create(&coder->thread, NULL, coder_routine, coder);
+		i ++;
 	}
 	pthread_create(&sim->monitor, NULL, monitor_routine, sim);
 	i = 0;
 	while (i < sim->n_coders)
 	{
-		pthread_join(sim->coders[i]->thread, NULL);
+		coder = sim->coders[i];
+		pthread_join(coder->thread, NULL);
 		i ++;
 	}
 	pthread_join(sim->monitor, NULL);

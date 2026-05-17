@@ -37,6 +37,7 @@ fclean: clean
 	rm -rf $(NAME)
 
 lint:
+	norminette -R CheckDefine $(HEADER)
 	norminette $(SRC)
 
 re: fclean all

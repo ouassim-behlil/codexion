@@ -10,7 +10,7 @@
 # include <limits.h>
 # include <time.h>
 
-typedef enum 
+typedef enum s_error_code
 {
 	ERR_OK = 0,
 	ERR_INVALID_ARG = 1 << 0,
@@ -63,7 +63,7 @@ struct s_coder
 	int					right_dongle_id;
 	long				last_compile_start_ms;
 	int					compiles_done;
-	long                attempt_start_ms; 
+	long				attempt_start_ms;
 	pthread_mutex_t		lock;
 	pthread_t			thread;
 	t_sim				*sim;
@@ -89,10 +89,10 @@ struct s_sim
 };
 
 // parser.c
-int		parse_args(int ac, const char **av, t_sim *sim);
+int			parse_args(int ac, const char **av, t_sim *sim);
 
 // error.c
-void	print_error(t_error_code err);
+void		print_error(t_error_code err);
 
 // time.c
 long		get_time_ms(void);
@@ -101,38 +101,38 @@ t_timespec	ms_to_timespec(long ms);
 long		elapsed_ms(long since_ms);
 
 // coder.c
-int		init_coders(t_sim *sim);
-void	destroy_coders(t_sim *sim);
+int			init_coders(t_sim *sim);
+void		destroy_coders(t_sim *sim);
 
 // dongle.c
-int		init_dongles(t_sim *sim);
-void	destroy_dongles(t_sim *sim);
+int			init_dongles(t_sim *sim);
+void		destroy_dongles(t_sim *sim);
 
 // simulation.c
-int		init_simulation(t_sim *sim, int ac, const char **av);
-void	destroy_simulation(t_sim *sim);
-void	start_simulation(t_sim *sim);
+int			init_simulation(t_sim *sim, int ac, const char **av);
+void		destroy_simulation(t_sim *sim);
+void		start_simulation(t_sim *sim);
 
 // monitor.c
-int		is_stopped(t_sim *sim);
-void	signal_stop(t_sim *sim);
-void	*monitor_routine(void *arg);
+int			is_stopped(t_sim *sim);
+void		signal_stop(t_sim *sim);
+void		*monitor_routine(void *arg);
 
 // request.c
-void	request_dongles(t_coder *c, t_sim *sim);
+void		request_dongles(t_coder *c, t_sim *sim);
 
 // release.c
-void	release_dongles(t_coder *coder);
+void		release_dongles(t_coder *coder);
 
 // coder_routine.c
-void	*coder_routine(void *arg);
+void		*coder_routine(void *arg);
 
 // log.c
-void	log_msg(t_coder *coder, const char *msg);
+void		log_msg(t_coder *coder, const char *msg);
 
 // heap.c
-void 	heap_insert(t_heap *heap, t_request req);
-void    heap_delete(t_heap *heap);
-int     heap_peek(t_heap *heap);
+void		heap_insert(t_heap *heap, t_request req);
+void		heap_delete(t_heap *heap);
+int			heap_peek(t_heap *heap);
 
 #endif
