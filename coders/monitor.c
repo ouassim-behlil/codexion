@@ -35,9 +35,12 @@ void	signal_stop(t_sim *sim)
 	int		i;
 
 	i = 0;
+	
 	while (i < sim->n_dongles)
 	{
+		pthread_mutex_lock(&sim->dongles[i]->lock);
 		pthread_cond_broadcast(&sim->dongles[i]->cv);
+		pthread_mutex_unlock(&sim->dongles[i]->lock);
 		i++;
 	}
 }
