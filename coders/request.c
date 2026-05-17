@@ -1,82 +1,66 @@
 #include "include/codexion.h"
 
-static void	push_request(t_request *req, t_dongle *dongle, t_policy sched)
+
+static void	push_request(t_coder *coder, t_dongle *dongle)
 {
-	if (dongle->held == 1)
+	t_request		req;
+	t_policy		scheduler;
+	long			key;
+
+	key = get_time_ms();
+	req.coder_id = coder->id;
+	scheduler = coder->sim->scheduler;
+	if (scheduler == POLICY_EDF)
 	{
-		dongle->requests[1] = req;
-		return ;
+		key = coder->last_compile_start_ms + coder->sim->dongle_cooldown;
 	}
-	if (dongle->requests[0] == NULL)
-	{
-		dongle->requests[0] = req;
-		return ;
-	}
-	if (sched == POLICY_FIFO)
-		dongle->requests[1] = req;
-	else
-	{
-		if (req->deadline_ms < dongle->requests[0]->deadline_ms)
-		{
-			dongle->requests[1] = dongle->requests[0];
-			dongle->requests[0] = req;
-		}
-		else
-			dongle->requests[1] = req;
-	}
+	req.key = key;
+	heap_insert(&dongle->heap, req);
 }
 
-static int	init_request(t_request **req, t_coder *coder)
+static void	request_dongle(t_coder *c, t_dongle *d, t_sim *sim)
 {
-	*req = malloc(sizeof(t_request));
-	if (!*req)
-		return (-1);
-	(*req)->coder_id = coder->id;
-	(*req)->arrival_ms = coder->attempt_start_ms;
-	(*req)->deadline_ms = coder->last_compile_start_ms + coder->sim->time_to_burnout;
-	return (0);
-}
+	t_timespec		timeout;
 
-static int	waiting_loop(t_dongle *dongle, t_coder *coder)
-{
-	t_timespec		ts;
-
-	while (dongle->requests[0]->coder_id != coder->id
-		|| dongle->held == 1
-		|| get_time_ms() < dongle->not_available_until_ms
+	pthread_mutex_lock(&d->lock);
+	push_request(c, d);
+	while (
+		d->held == 1
+		|| heap_peek(&d->heap) != c->id
+		|| get_time_ms() < d->not_available_until_ms
 	)
 	{
-		if (is_stopped(coder->sim) == 1)
+		if (is_stopped(sim) == 1)
 		{
-			pthread_mutex_unlock(&dongle->lock);
-			return (-1);
+			pthread_mutex_unlock(&d->lock);
+			return ;
 		}
-		if (dongle->requests[0]->coder_id != coder->id
-			|| dongle->held == 1
-		)
-			pthread_cond_wait(&dongle->cv, &dongle->lock);
-		if (dongle->held == 0 && dongle->requests[0]->coder_id == coder->id)
+		if (heap_peek(&d->heap) != c->id)
 		{
-			ts = ms_to_timespec(dongle->not_available_until_ms);
-			pthread_cond_timedwait(&dongle->cv, &dongle->lock, &ts);
+			pthread_cond_wait(&d->cv, &d->lock);
+		}
+		else
+		{
+			timeout = ms_to_timespec(d->not_available_until_ms);
+			pthread_cond_timedwait(&d->cv, &d->lock, &timeout);
 		}
 	}
-	return (0);
+	d->held = 1;
+	pthread_mutex_unlock(&d->lock);
 }
 
-int	request_dongle(t_coder *coder, int dongle_id)
+void	request_dongles(t_coder *c, t_sim *sim)
 {
-	t_request		*req;
-	t_dongle		*dongle;
+	t_dongle	*first;
+	t_dongle	*last;
 
-	if (init_request(&req, coder) != 0)
-		return (-1);
-	dongle = coder->sim->dongles[dongle_id - 1];
-	pthread_mutex_lock(&dongle->lock);
-	push_request(req, dongle, coder->sim->scheduler);
-	if (waiting_loop(dongle, coder) != 0)
-		return (-1);
-	dongle->held = 1;
-	pthread_mutex_unlock(&dongle->lock);
-	return (0);
+	first = sim->dongles[c->left_dongle_id - 1];
+	last = sim->dongles[c->right_dongle_id - 1];
+	if (c->id % 2 == 0)
+	{
+		first = sim->dongles[c->right_dongle_id - 1];
+		last = sim->dongles[c->left_dongle_id - 1];
+	}
+	request_dongle(c, first, sim);
+	request_dongle(c, last, sim);
 }

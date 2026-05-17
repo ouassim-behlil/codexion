@@ -11,7 +11,8 @@ SRC = main.c \
 	  release.c \
 	  log.c \
 	  coder_routine.c \
-	  monitor.c
+	  monitor.c \
+	  heap.c
 
 INCLUDE = include
 HEADER = $(INCLUDE)/codexion.h

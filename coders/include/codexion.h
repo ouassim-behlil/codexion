@@ -36,22 +36,25 @@ typedef struct timespec	t_timespec;
 typedef struct s_request
 {
 	int			coder_id;
-	long		arrival_ms;
-	long		deadline_ms;
+	long		key;
 }	t_request;
+
+typedef struct s_heap
+{
+	int			cap;
+	int			size;
+	t_request	requests[2];
+}	t_heap;
 
 struct s_dongle
 {
 	int					id;
 	int					held;
 	long				not_available_until_ms;
-	t_request			*requests[2];
+	t_heap				heap;
 	pthread_mutex_t		lock;
 	pthread_cond_t		cv;
 };
-/* requests[2]: chain topology guarantees at most 2 contenders per dongle
- * (the left-neighbor coder and the right-neighbor coder). Changing the
- * topology (e.g. fully-connected) requires replacing this with a queue. */
 
 struct s_coder
 {
@@ -116,7 +119,7 @@ void	signal_stop(t_sim *sim);
 void	*monitor_routine(void *arg);
 
 // request.c
-int		request_dongle(t_coder *coder, int dongle_id);
+void	request_dongles(t_coder *c, t_sim *sim);
 
 // release.c
 void	release_dongles(t_coder *coder);
@@ -125,6 +128,11 @@ void	release_dongles(t_coder *coder);
 void	*coder_routine(void *arg);
 
 // log.c
-void	log_msg(t_coder *coder, const char *msg, int dongle_id);
+void	log_msg(t_coder *coder, const char *msg);
+
+// heap.c
+void 	heap_insert(t_heap *heap, t_request req);
+void    heap_delete(t_heap *heap);
+int     heap_peek(t_heap *heap);
 
 #endif
